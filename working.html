@@ -538,6 +538,7 @@ const STORIES = {
           { delay:1100, html: productCard('Sofa','Outdoor Sectional','$1,899','★★★★★','Weather-resistant') },
           { delay:1400, html: productCard('Shade','Market Umbrella','$320','★★★★☆','UV-blocking') },
           { delay:1700, html: productCard('Rug','Outdoor Area Rug','$249','★★★★★','Complements teak set') },
+          { delay:2100, html:'<div class="cb ai" style="margin-top:4px">Want to refine? Adjust for budget, shade coverage, or swap pieces.</div>' },
         ]},
       { type:'chat-continue', desc:'Constraint adjustment — shade + cost', hold:1200,
         items: [
@@ -545,12 +546,18 @@ const STORIES = {
           { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
           { delay:700, html:'<div class="cb ai">Swapped umbrella for sail shade (saves $180, +40% coverage). New total: $3,200.</div>' },
           { delay:1200, html:'<div class="img-ph img-ph-34" style="margin:6px 0">Updated patio with sail shade</div>' },
+          { delay:1700, html:'<div class="pc"><span class="ch">Show me what changed</span><span class="ch">Looks great</span><span class="ch">Lower cost more</span></div>' },
         ]},
       { type:'chat-continue', desc:'Before/after comparison', hold:1500,
         items: [
           { delay:0, html:'<div class="cb ai" style="margin-top:8px">Here\'s what changed:</div>' },
           { delay:400, html:'<table class="choice-tbl"><tr><th>Item</th><th>Before</th><th>After</th></tr><tr><td>Shade</td><td>$320</td><td class="rec">$140</td></tr><tr><td>Planters</td><td>$210</td><td class="rec">$80</td></tr><tr><td>Total</td><td>$3,650</td><td class="rec">$3,200</td></tr></table>' },
           { delay:1000, html:'<div class="pc"><span class="ch pri">Keep changes</span><span class="ch">Revert</span></div>' },
+        ]},
+      { type:'chat-continue', desc:'Generate or add to cart', hold:1000,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Keep changes</div>' },
+          { delay:500, html:'<div class="pc"><span class="ch">Generate the look</span><span class="ch pri">Add all to cart</span></div>' },
         ]},
       { type:'screen', desc:'Cart with consolidated delivery', hold:4500,
         html: `<div class="cn">${bc()}<span class="tt">Cart</span></div><div class="cg"><div class="gl">✦ Patio Refresh</div>${cartItem('Outdoor Sectional','$1,899')}${cartItem('Sail Shade Canopy','$140')}${cartItem('Outdoor Area Rug','$249')}</div><div class="ct"><span>Total</span><span>$3,200</span></div><div class="cob">Checkout</div>` },
@@ -692,17 +699,20 @@ const STORIES = {
       { type:'chat-continue', desc:'Category assortment recommendations', hold:1200,
         items: [
           { delay:0, html:'<div class="cs" style="margin-top:10px">AI Designer</div>' },
-          { delay:200, html:'<div class="cb ai">Here\'s a recommended assortment:</div>' },
-          { delay:600, html: productCard('','Upholstered Banquette','$340/unit','','Commercial, 5yr') },
-          { delay:900, html: productCard('','Metal-Frame Chair','$185/unit','','Commercial, 7yr') },
-          { delay:1200, html: productCard('','Butcher Block Table','$420','','Matches inspiration') },
+          { delay:200, html:'<div class="cb ai">5 restaurants, commercial grade, $50–100K. Here\'s a recommended assortment by category.</div>' },
+          { delay:600, html: productCard('Seating A','Upholstered Banquette','$340/unit','','Commercial, 5yr warranty') },
+          { delay:900, html: productCard('Seating B','Metal-Frame Chair','$185/unit','','Commercial, 7yr warranty') },
+          { delay:1200, html: productCard('Tables','Butcher Block Table','$420','','Matches inspiration aesthetic') },
+          { delay:1500, html: productCard('Lighting','Pendant Cluster','$289','','Warm tone, commercial rated') },
+          { delay:1900, html:'<div class="cb ai" style="margin-top:4px">Compare options within a category, or generate a layout?</div>' },
         ]},
       { type:'chat-continue', desc:'Seating comparison with trade-offs', hold:1500,
         items: [
-          { delay:0, html:'<div class="cb user" style="margin-top:10px">Compare seating</div>' },
-          { delay:500, html:'<table class="choice-tbl"><tr><th></th><th>Banquette</th><th>Metal</th></tr><tr><td>×80 seats</td><td>$27,200</td><td>$14,800</td></tr><tr><td>Lead time</td><td>6 wks</td><td>2 wks</td></tr><tr><td>Match</td><td class="rec">High</td><td>Moderate</td></tr></table>' },
-          { delay:1000, html:'<div class="cb ai">Mix? Banquettes for flagship, metal for rest?</div>' },
-          { delay:1400, html:'<div class="pc"><span class="ch">Mix approach</span><span class="ch">All banquettes</span></div>' },
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Compare seating options</div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<table class="choice-tbl"><tr><th></th><th>Banquette</th><th>Metal-frame</th></tr><tr><td>$/unit</td><td>$340</td><td>$185</td></tr><tr><td>×5 loc (80)</td><td>$27,200</td><td>$14,800</td></tr><tr><td>Durability</td><td>5yr warranty</td><td>7yr warranty</td></tr><tr><td>Clean</td><td>Stain-treated</td><td>Wipe-down</td></tr><tr><td>Lead time</td><td>6 weeks</td><td>2 weeks</td></tr><tr><td>Aesthetic</td><td class="rec">High match</td><td>Moderate</td></tr></table>' },
+          { delay:1200, html:'<div class="cb ai" style="margin-top:6px">Mix approach — banquettes for flagship, metal-frame for the rest?</div>' },
+          { delay:1600, html:'<div class="pc"><span class="ch">Mix approach</span><span class="ch">All banquettes</span><span class="ch">All metal-frame</span></div>' },
         ]},
       { type:'chat-continue', desc:'Multi-location cost breakdown', hold:1800,
         items: [
@@ -1045,6 +1055,7 @@ function modalShowMoment(idx){
     modalChatContainer=null;
     modalSc.innerHTML=m.html;
     modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+    modalSc.scrollTo({top:0,behavior:'smooth'});
   } else if(m.type==='chat-start'){
     modalSc.innerHTML=`<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
     modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
@@ -1119,9 +1130,9 @@ function modalGoTo(idx){
 function openModal(storyKey){
   modalStory = storyKey;
   modalCurrent = 0;
-  modalPlaying = true;
+  modalPlaying = false;
   modalChatContainer = null;
-  modalPP.textContent = '❚❚';
+  modalPP.textContent = '▶';
 
   const s = STORIES[storyKey];
   modalTitle.textContent = s.title;
