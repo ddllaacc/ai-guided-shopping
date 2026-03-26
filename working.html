@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Guided Shopping — Experience Vision Screens</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#f5f3f0;font-family:'DM Sans',sans-serif;color:#1d1d1f;overflow-x:hidden}
+
+/* ===== STICKY NAV ===== */
+.story-nav{position:sticky;top:0;z-index:200;background:rgba(245,243,240,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);padding:14px 40px;display:flex;gap:24px;align-items:center}
+.story-nav button{font-size:13px;font-weight:600;color:#888;background:none;border:none;cursor:pointer;white-space:nowrap;padding:6px 14px;border-radius:18px;transition:all .2s;font-family:inherit}
+.story-nav button:hover{color:#1d1d1f;background:rgba(0,0,0,.04)}
+.story-nav button.active{color:#7B2D8E;background:rgba(123,45,142,.08)}
+.story-nav .nav-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#bbb;padding:6px 0}
+
+/* ===== STORY SECTION ===== */
+.story-section{padding:40px 0 60px;border-bottom:1px solid rgba(0,0,0,.06)}
+.story-section:last-child{border-bottom:none}
+.story-header{padding:0 40px 20px;max-width:700px}
+.story-header h1{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#999;margin-bottom:4px}
+.story-header h2{font-size:22px;font-weight:700;margin-bottom:4px}
+.story-header p{font-size:13px;color:#888;line-height:1.5}
+
+.scroll-track{display:flex;align-items:flex-start;gap:48px;padding:0 40px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll-track::-webkit-scrollbar{display:none}
+
+.screen-group{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.screen-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:4px}
+.screen-title{font-size:12px;font-weight:600;margin-bottom:12px;text-align:center;max-width:280px}
+
+/* ===== IPHONE FRAME ===== */
+.iphone{width:300px;height:640px;background:#fff;border-radius:48px;border:9px solid #1d1d1f;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.13)}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 24px 0;height:46px;position:relative;z-index:10}
+.status-time{font-size:15px;font-weight:600}
+.status-icons{display:flex;gap:5px;align-items:center}
+.dynamic-island{width:96px;height:26px;background:#1d1d1f;border-radius:20px;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:20}
+.screen-content{height:calc(100% - 46px - 80px);overflow-y:auto;position:relative}
+.screen-content::-webkit-scrollbar{display:none}
+
+/* Liquid glass nav */
+.bottom-nav{position:absolute;bottom:10px;left:10px;right:10px;height:62px;background:rgba(255,255,255,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:28px;border:1px solid rgba(255,255,255,.5);box-shadow:0 2px 16px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between;padding:0 6px;z-index:10}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:500;color:#666;padding:6px 10px;border-radius:16px;min-width:44px}
+.nav-item.active{color:#1d1d1f;background:rgba(0,0,0,.06)}
+.ai-fab{width:56px;height:56px;border-radius:50%;background:#7B2D8E;border:3px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(123,45,142,.3);flex-shrink:0}
+
+/* ===== IMAGE PLACEHOLDERS ===== */
+.img-ph{background:#c0c0c0 repeating-linear-gradient(45deg,transparent,transparent 14px,rgba(0,0,0,.08) 14px,rgba(0,0,0,.08) 15px);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:10px;color:#888;font-weight:500;text-align:center;padding:8px}
+.img-ph::before,.img-ph::after{content:'';position:absolute;top:0;left:0;width:141.4%;height:1px;background:rgba(0,0,0,.15);transform-origin:0 0}
+.img-ph::before{transform:rotate(33.7deg)}
+.img-ph::after{transform:rotate(-33.7deg);top:auto;bottom:0;transform-origin:0 100%}
+.img-ph-sq{width:120px;height:120px;border-radius:8px}
+.img-ph-34{width:100%;aspect-ratio:4/3;border-radius:10px}
+.img-ph-sm{width:52px;height:52px;border-radius:8px;font-size:7px}
+.img-ph-cart{width:38px;height:38px;border-radius:6px;font-size:0}
+.img-ph-mir{width:100%;height:48px;border-radius:6px;font-size:8px}
+.img-ph-email{width:100%;height:78px;font-size:10px;color:#fff;font-weight:600}
+.img-ph-next{width:100%;height:68px;font-size:10px;color:#666}
+
+/* ===== HOMEPAGE COMPONENTS ===== */
+.homepage-section{padding:16px 18px}
+.hp-top-chips{display:flex;gap:8px;margin-bottom:16px}
+.hp-chip{padding:8px 14px;border-radius:20px;border:1px solid #ddd;font-size:12px;font-weight:500;white-space:nowrap;background:#fff;display:flex;align-items:center;gap:6px}
+.promo-banner{background:linear-gradient(135deg,#f5eef8,#ede5f3);padding:16px 18px;margin:0 -18px 16px;border-top:1px solid rgba(123,45,142,.06);border-bottom:1px solid rgba(123,45,142,.06)}
+.promo-banner .label{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#7B2D8E;margin-bottom:6px}
+.promo-banner h3{font-size:17px;font-weight:700;margin-bottom:3px}
+.promo-banner p{font-size:12px;color:#555;line-height:1.4}
+.section-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.section-header h3{font-size:16px;font-weight:700}
+.section-header a{font-size:12px;text-decoration:underline;font-weight:500;color:#1d1d1f}
+.my-orders-card{border:1px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.order-img{width:48px;height:48px;background:#e8e4e0;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.order-img .ph{width:22px;height:22px;border:2px solid #c0bab4;border-radius:3px}
+.order-text h4{font-size:13px;font-weight:600}
+.order-text a{font-size:11px;text-decoration:underline;color:#1d1d1f}
+.product-row{display:flex;gap:10px}
+.product-thumb{width:120px;flex-shrink:0}
+.product-thumb .nm{font-size:11px;font-weight:500;line-height:1.3}
+.product-thumb .pr{font-size:11px;font-weight:600;margin-top:2px}
+
+/* ===== IMMERSIVE / CHAT ===== */
+.immersive-bg{background:linear-gradient(180deg,#faf8fc,#f3eef8);min-height:100%;padding:10px 14px;display:flex;flex-direction:column}
+.im-nav{display:flex;align-items:center;padding:2px 0 10px;position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#faf8fc 80%,transparent)}
+.bc{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center}
+.im-nav .tt{font-size:14px;font-weight:700;flex:1;text-align:center}
+.menu-btn{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-flow{display:flex;flex-direction:column;flex:1;padding-bottom:40px}
+.cs{font-size:10px;font-weight:600;margin-bottom:4px;margin-top:4px}
+.cb{max-width:90%;padding:11px 14px;font-size:12.5px;line-height:1.55;margin-bottom:6px}
+.cb.ai{background:rgba(0,0,0,.04);border-radius:4px 16px 16px 16px}
+.cb.user{background:#7B2D8E;color:#fff;align-self:flex-end;border-radius:16px 4px 16px 16px}
+.pc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ch{padding:8px 14px;border-radius:20px;font-size:11px;font-weight:500;background:#fff;border:1px solid #ddd;white-space:nowrap}
+.ch.pri{background:#7B2D8E;color:#fff;border-color:#7B2D8E}
+.pcc{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:10px 12px;margin:3px 0;display:flex;gap:10px;align-items:center}
+.pci-info h4{font-size:12px;font-weight:600;margin-bottom:1px}
+.pci-info .pl{font-size:12px;font-weight:700}
+.pci-info .rat{font-size:9.5px;color:#7B2D8E;margin-top:2px;font-style:italic}
+.pci-info .rt{font-size:9.5px;color:#888}
+.mo{display:flex;gap:7px;margin:6px 0}
+.moi{flex:1;background:#fff;border:1.5px solid #e0e0e0;border-radius:10px;padding:8px 6px;text-align:center}
+.moi.pk{border-color:#7B2D8E;background:#faf6fc;box-shadow:0 0 0 1px #7B2D8E}
+.moi .nm{font-size:9px;font-weight:500}
+.moi .pr{font-size:9px;font-weight:700;margin-top:1px}
+.ib{display:flex;gap:8px;padding:10px 14px 4px;position:sticky;bottom:0;background:linear-gradient(0deg,#f3eef8 60%,transparent)}
+.if{flex:1;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:22px;font-size:12px;color:#aaa}
+.sb{width:34px;height:34px;border-radius:50%;background:#7B2D8E;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ===== CART ===== */
+.cn{display:flex;align-items:center;padding:8px 18px;gap:12px}
+.cn .tt{font-size:15px;font-weight:700;flex:1;text-align:center;padding-right:30px}
+.cg{background:#f9f6fc;border:1px solid #ece5f3;border-radius:12px;padding:14px;margin:10px 18px}
+.cg .gl{font-size:10px;font-weight:700;color:#7B2D8E;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.ci{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #f0ebf5}
+.ci:last-child{border-bottom:none}
+.cin{font-size:11px;font-weight:500;flex:1}
+.cip{font-size:11px;font-weight:700}
+.di{background:#eef6ee;border-radius:10px;padding:12px 14px;margin:10px 18px;font-size:11px;color:#2a6a2a;line-height:1.5}
+.ct{display:flex;justify-content:space-between;padding:14px 18px;font-size:15px;font-weight:700}
+.cob{margin:6px 18px 18px;padding:14px;background:#1d1d1f;color:#fff;border-radius:10px;font-size:14px;font-weight:600;text-align:center}
+
+/* ===== EMAIL ===== */
+.ebg{background:#ece8e3;min-height:100%}
+.ehb{background:#7B2D8E;padding:18px 16px;text-align:center}
+.ehb .logo{font-size:17px;font-weight:700;color:#fff}
+.ebody{background:#fff;margin:0 12px;border-radius:0 0 14px 14px;padding:18px 16px}
+.ebody h2{font-size:19px;font-weight:700;text-align:center;margin-bottom:4px}
+.ebody .sub{font-size:12px;color:#888;text-align:center;margin-bottom:16px}
+.cr{display:flex;gap:8px;margin-bottom:18px}
+.cri{flex:1;border-radius:10px;overflow:hidden;border:1px solid #eee}
+.cri .rl{font-size:10px;font-weight:600;text-align:center;padding:6px 0;background:#fafafa}
+.wn h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.wn p{font-size:11px;color:#888;margin-bottom:12px;line-height:1.4}
+.nrc{background:#f8f5fc;border-radius:10px;overflow:hidden;margin-bottom:8px;border:1px solid #ece5f3}
+.nrc .cta{display:flex;justify-content:space-between;align-items:center;padding:9px 12px}
+.nrc .cta span{font-size:12px;font-weight:600}
+.nrc .cta .arr{font-size:16px;color:#7B2D8E;font-weight:700}
+
+/* ===== TABLES ===== */
+.choice-tbl{width:100%;border-collapse:collapse;font-size:10px;margin:6px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8}
+.choice-tbl th{background:#f5f3f0;text-align:left;padding:6px 8px;font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:.03em;color:#666}
+.choice-tbl td{padding:6px 8px;border-top:1px solid #f0f0f0;font-size:10px}
+.choice-tbl td:first-child{font-weight:600;color:#666;font-size:9px}
+.choice-tbl .rec{background:#f8f5fc;font-weight:600;color:#7B2D8E}
+
+/* ===== PDP ===== */
+.pdp-section{padding:0 16px}
+.pdp-title{font-size:15px;font-weight:700;margin:10px 0 2px}
+.pdp-price{font-size:14px;font-weight:700;margin-bottom:8px}
+.pdp-specs{font-size:10px;color:#666;line-height:1.5;margin-bottom:10px}
+.ai-highlight{background:#f8f5fc;border:1px solid #ece5f3;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.ai-highlight .hl-label{font-size:9px;font-weight:700;color:#7B2D8E;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.ai-highlight .hl-item{font-size:10.5px;line-height:1.5;margin-bottom:4px;padding-left:14px;position:relative}
+.ai-highlight .hl-item::before{content:'✓';position:absolute;left:0;color:#7B2D8E;font-weight:700;font-size:10px}
+.review-summary{background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.review-summary .rs-label{font-size:9px;font-weight:700;color:#1d1d1f;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.review-summary .rs-item{font-size:10.5px;line-height:1.5;margin-bottom:3px}
+
+/* ===== MISC COMPONENTS ===== */
+.ctx-entry{background:linear-gradient(135deg,#f5eef8,#ede5f3);border-radius:12px;padding:12px 14px;margin:12px 14px}
+.ctx-entry h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.ctx-entry p{font-size:11px;color:#555;margin-bottom:8px}
+.upload-area{border:2px dashed #ccc;border-radius:10px;padding:16px;text-align:center;margin:6px 0}
+.upload-area .icon{font-size:20px;margin-bottom:4px}
+.upload-area .txt{font-size:11px;color:#888}
+.intake-form{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:12px;margin:6px 0}
+.intake-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:11px}
+.intake-row:last-child{border-bottom:none}
+.intake-row .lbl{font-weight:600;color:#666;font-size:10px}
+.intake-row .val{color:#1d1d1f;font-weight:500}
+
+/* ===== CONNECTORS & NOTES ===== */
+.conn{display:flex;align-items:center;flex-shrink:0;padding-top:50px}
+.conn svg{width:28px;height:28px;opacity:.2}
+.sn{margin-top:10px;font-size:10px;color:#999;text-align:center;max-width:260px;line-height:1.5;font-style:italic;margin-bottom:4px}
+
+/* ===== ANIMATED PHONE ===== */
+.anim-group{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.anim-group .screen-meta{text-align:center;margin-top:10px;min-height:44px}
+.anim-group .meta-label{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:2px}
+.anim-group .meta-desc{font-size:11px;font-weight:500;color:#666;max-width:260px;line-height:1.4}
+.anim-group .progress-bar{display:flex;gap:3px;justify-content:center;margin-top:10px}
+.anim-group .progress-dot{width:24px;height:3px;border-radius:2px;background:rgba(0,0,0,.1);cursor:pointer;transition:background .3s}
+.anim-group .progress-dot.active{background:#7B2D8E}
+.anim-group .progress-dot.past{background:rgba(0,0,0,.2)}
+.anim-group .anim-controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.anim-group .ctrl-btn{width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.15);background:none;color:#999;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s}
+.anim-group .ctrl-btn:hover{border-color:#999;color:#1d1d1f}
+.anim-group .ctrl-btn.pp{border-color:#7B2D8E;color:#7B2D8E}
+.anim-group .ctrl-btn.pp:hover{background:#7B2D8E;color:#fff}
+
+/* Screen swap for non-chat slides */
+.anim-phone .screen-swap{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity .4s ease;pointer-events:none;overflow-y:auto}
+.anim-phone .screen-swap::-webkit-scrollbar{display:none}
+.anim-phone .screen-swap.active{opacity:1;pointer-events:auto}
+
+/* Chat message animation */
+.chat-msg{opacity:0;transform:translateY(16px);max-height:0;overflow:visible;transition:opacity .4s ease,transform .4s ease,max-height .5s ease,margin .3s ease;margin-bottom:0;display:flex;flex-direction:column}
+.chat-msg.shown{opacity:1;transform:translateY(0);max-height:500px;margin-bottom:6px}
+.chat-msg:has(.cb.user){align-items:flex-end}
+.chat-msg:has(.cb.user) .cb.user{align-self:flex-end}
+.chat-msg.user-msg{align-items:flex-end}
+.chat-msg.user-msg .cb.user{align-self:flex-end}
+
+/* ===== EXPAND BUTTON ===== */
+.anim-title-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.anim-title-row .screen-title{margin-bottom:0}
+.expand-btn{width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.expand-btn:hover{background:rgba(123,45,142,.08);border-color:#7B2D8E}
+.expand-btn svg{width:14px;height:14px;stroke:#888;transition:stroke .2s}
+.expand-btn:hover svg{stroke:#7B2D8E}
+
+/* ===== FULLSCREEN MODAL ===== */
+.anim-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.anim-modal.open{opacity:1;pointer-events:auto}
+.anim-modal .modal-header{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:20px 32px}
+.anim-modal .modal-title{color:#fff;font-size:14px;font-weight:600}
+.anim-modal .modal-subtitle{color:rgba(255,255,255,.5);font-size:11px;margin-top:2px}
+.modal-close{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;font-family:inherit}
+.modal-close:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.4)}
+.anim-modal .modal-body{display:flex;flex-direction:column;align-items:center;gap:16px}
+.anim-modal .modal-meta{text-align:center;min-height:44px}
+.anim-modal .modal-meta-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:2px}
+.anim-modal .modal-meta-desc{font-size:13px;font-weight:500;color:rgba(255,255,255,.8);max-width:320px;line-height:1.4}
+.anim-modal .modal-progress{display:flex;gap:4px;justify-content:center}
+.anim-modal .modal-dot{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,.15);cursor:pointer;transition:background .3s}
+.anim-modal .modal-dot.active{background:#7B2D8E}
+.anim-modal .modal-dot.past{background:rgba(255,255,255,.3)}
+.anim-modal .modal-controls{display:flex;gap:10px;align-items:center;margin-top:4px}
+.anim-modal .m-ctrl{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:none;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.anim-modal .m-ctrl:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.anim-modal .m-ctrl.m-pp{border-color:#7B2D8E;color:#7B2D8E;width:38px;height:38px}
+.anim-modal .m-ctrl.m-pp:hover{background:#7B2D8E;color:#fff}
+.anim-modal .esc-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.04em}
+
+/* ===== STORY DIVIDER ===== */
+.story-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;padding:0 60px;min-height:500px;position:relative}
+.story-divider .divider-line{width:1px;height:80px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.12),transparent);margin-bottom:20px}
+.story-divider .divider-text{font-size:48px;font-weight:700;color:rgba(0,0,0,.06);letter-spacing:-.03em;writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap}
+.story-divider .divider-line-b{width:1px;height:80px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.12),transparent);margin-top:20px}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+.story-nav{padding:10px 16px;gap:8px;overflow-x:auto}
+.story-nav button{font-size:12px;padding:6px 10px}
+.story-header{padding:0 20px 16px}
+.scroll-track{padding:0 20px;gap:36px}
+}
+
+/* ===== DARK MODE ===== */
+@media(prefers-color-scheme:dark){
+body{background:#1a1a1a;color:#e8e8e8}
+.story-nav{background:rgba(26,26,26,.92);border-bottom-color:rgba(255,255,255,.08)}
+.story-nav .nav-label{color:#666}
+.story-nav button{color:#888}
+.story-nav button:hover{color:#e8e8e8;background:rgba(255,255,255,.06)}
+.story-nav button.active{color:#c88ddb;background:rgba(123,45,142,.2)}
+.story-section{border-bottom-color:rgba(255,255,255,.06)}
+.story-header h1{color:#888}
+.story-header h2{color:#e8e8e8}
+.story-header p{color:#999}
+.screen-label{color:#777}
+.screen-title{color:#e8e8e8}
+.sn{color:#777}
+.conn svg{stroke:#e8e8e8}
+.anim-group .meta-desc{color:#999}
+.anim-group .progress-dot{background:rgba(255,255,255,.1)}
+.anim-group .progress-dot.past{background:rgba(255,255,255,.2)}
+.anim-group .ctrl-btn{border-color:rgba(255,255,255,.15);color:#888}
+.anim-group .ctrl-btn:hover{border-color:#999;color:#e8e8e8}
+.story-divider .divider-line,.story-divider .divider-line-b{background:linear-gradient(180deg,transparent,rgba(255,255,255,.08),transparent)}
+.story-divider .divider-text{color:rgba(255,255,255,.06)}
+/* Force light inside phones */
+.iphone{color:#1d1d1f}
+.iphone *{color:inherit}
+.iphone .cb.user,.iphone .cb.user *{color:#fff}
+.iphone .ch.pri,.iphone .ch.pri *{color:#fff}
+.iphone .ehb,.iphone .ehb *{color:#fff}
+.iphone .img-ph-email{color:#fff}
+.iphone .di,.iphone .di *{color:#2a6a2a}
+.iphone .rat,.iphone .pci-info .rat{color:#7B2D8E}
+.iphone .promo-banner .label{color:#7B2D8E}
+.iphone .cg .gl{color:#7B2D8E}
+.iphone .nrc .cta .arr{color:#7B2D8E}
+.iphone .rt,.iphone .pci-info .rt{color:#888}
+.iphone .cs{color:#1d1d1f}
+.iphone .cb.ai{color:#1d1d1f}
+.iphone .if{color:#aaa}
+.iphone .cob{color:#fff}
+.iphone .ai-highlight .hl-label{color:#7B2D8E}
+.iphone .choice-tbl .rec{color:#7B2D8E}
+.iphone .ctx-entry p{color:#555}
+.iphone .upload-area .txt{color:#888}
+.iphone .intake-row .lbl{color:#666}
+.iphone .review-summary .rs-label{color:#1d1d1f}
+.expand-btn{border-color:rgba(255,255,255,.15)}
+.expand-btn svg{stroke:#888}
+.expand-btn:hover{background:rgba(123,45,142,.15);border-color:#7B2D8E}
+.expand-btn:hover svg{stroke:#c88ddb}
+}
+</style>
+</head>
+<body>
+
+<nav class="story-nav" id="storyNav">
+  <span class="nav-label">Stories</span>
+  <button data-target="story1">1: Smarter Home</button>
+  <button data-target="story2">2: Visualization</button>
+  <button data-target="story3">3: Urgent Needs</button>
+  <button data-target="story5">5: B2B</button>
+</nav>
+
+<!-- Stories are rendered by JS below using shared content definitions -->
+<div id="app"></div>
+
+<script>
+// =====================================================
+// SHARED SNIPPETS — used by both animated & static phones
+// =====================================================
+const BACK_SVG = '<svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="#1d1d1f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SEND_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>';
+const MENU_SVG = '<svg width="20" height="14" viewBox="0 0 20 14" fill="none"><line x1="0" y1="1" x2="20" y2="1" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round"/><line x1="0" y1="7" x2="20" y2="7" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round"/><line x1="0" y1="13" x2="20" y2="13" stroke="#1d1d1f" stroke-width="2" stroke-linecap="round"/></svg>';
+const STATUS_BAR = `<div class="status-bar"><span class="status-time">9:41</span><div class="dynamic-island"></div><span class="status-icons"><svg width="16" height="11" viewBox="0 0 16 11" fill="none"><rect x="0" y="4" width="2.5" height="7" rx=".8" fill="#1d1d1f"/><rect x="3.5" y="2.5" width="2.5" height="8.5" rx=".8" fill="#1d1d1f"/><rect x="7" y="1" width="2.5" height="10" rx=".8" fill="#1d1d1f"/><rect x="10.5" width="2.5" height="11" rx=".8" fill="#1d1d1f"/></svg> <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M.5 3.5C3 .5 11 .5 13.5 3.5" stroke="#1d1d1f" stroke-width="1.3" stroke-linecap="round"/><path d="M3 6C4.5 4 9.5 4 11 6" stroke="#1d1d1f" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="8.5" r="1.2" fill="#1d1d1f"/></svg> <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".5" y=".5" width="18" height="10" rx="2" stroke="#1d1d1f" stroke-opacity=".35"/><rect x="1.5" y="1.5" width="16" height="8" rx="1.2" fill="#1d1d1f"/></svg></span></div>`;
+const FAB_SVG = `<svg width="30" height="30" viewBox="-2 -8 36 38" fill="none"><circle cx="13" cy="14" r="8" stroke="#fff" stroke-width="2.2"/><line x1="19.2" y1="20.2" x2="24" y2="25" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M24 -6l2.2 4.6 5 1.4-5 1.4L24 6l-2.2-4.6-5-1.4 5-1.4z" fill="#fff"/></svg>`;
+
+function bottomNav(active=''){
+  const items = [
+    {id:'home',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',label:'Home'},
+    {id:'discover',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.09 6.26L21 9.27l-5.18 3.71L17.18 20 12 16.27 6.82 20l1.36-6.99L3 9.27l6.91-1.01z"/></svg>',label:'Discover'},
+    {id:'account',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',label:'Account'},
+    {id:'cart',icon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>',label:'Cart'},
+  ];
+  return `<div class="bottom-nav">${items.map(i=>`<div class="nav-item ${active===i.id?'active':''}">${i.icon}${i.label}</div>`).join('')}<div class="ai-fab">${FAB_SVG}</div></div>`;
+}
+
+function phone(content, nav=''){
+  return `<div class="iphone">${STATUS_BAR}<div class="screen-content">${content}</div>${bottomNav(nav)}</div>`;
+}
+
+function bc(){ return `<div class="bc">${BACK_SVG}</div>`; }
+function imNav(title='AI Designer'){ return `<div class="im-nav">${bc()}<span class="tt">${title}</span><div class="menu-btn">${MENU_SVG}</div></div>`; }
+function inputBar(){ return `<div class="ib"><div class="if">Ask me anything...</div><div class="sb">${SEND_SVG}</div></div>`; }
+
+function productCard(img,name,price,rating,rationale){
+  return `<div class="pcc"><div class="img-ph img-ph-sm">${img}</div><div class="pci-info"><h4>${name}</h4><span class="pl">${price}</span> <span class="rt">${rating}</span><div class="rat">${rationale}</div></div></div>`;
+}
+
+function cartItem(name,price){
+  return `<div class="ci"><div class="img-ph img-ph-cart"></div><span class="cin">${name}</span><span class="cip">${price}</span></div>`;
+}
+
+const CONN = '<div class="conn"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><path d="M5 12h14m-7-7l7 7-7 7"/></svg></div>';
+const DIVIDER = '<div class="story-divider"><div class="divider-line"></div><div class="divider-text">Screen Details</div><div class="divider-line-b"></div></div>';
+
+// =====================================================
+// STORY CONTENT DEFINITIONS
+// Each story has: meta, screens (for static), moments (for animation)
+// Moments: {type:'screen'|'chat', html, desc, delay}
+// chat moments append to the running conversation
+// screen moments swap the entire view
+// =====================================================
+
+const STORIES = {
+  '1': {
+    id: 'story1',
+    num: 'Story 1',
+    title: 'Your home gets smarter with every purchase',
+    desc: 'A returning customer completes a bedroom refresh and is guided into their next room project through persistent digital twin context.',
+    screens: [
+      { label:'1.1', title:'Homepage — Ambient Module', nav:'home',
+        html: `<div class="homepage-section"><div class="hp-top-chips"><div class="hp-chip">♡ Lists</div><div class="hp-chip">Outdoor</div><div class="hp-chip">● Sale</div></div><div class="promo-banner"><div class="label">✦ Personalized for you</div><h3>Ready for your next room?</h3><p>Your bedroom refresh is complete. Here's a bathroom concept in your style.</p><div class="img-ph img-ph-34" style="margin-top:12px">Bathroom Concept<br>Natural Wood &amp; Warm Neutrals</div></div><div class="section-header"><h3>my orders</h3><a>See All</a></div><div class="my-orders-card"><div class="order-img"><div class="ph"></div></div><div class="order-text"><h4>It's landed home!</h4><a>Manage your order</a></div></div><div class="section-header"><h3>recommended for you →</h3></div><div class="product-row"><div class="product-thumb"><div class="img-ph img-ph-sq">Bed Frame</div><div class="nm">Walnut Platform Bed</div><div class="pr">$849</div></div><div class="product-thumb"><div class="img-ph img-ph-sq">Nightstand</div><div class="nm">Oak Nightstand</div><div class="pr">$299</div></div></div></div>`,
+        note:'Personalized module from purchase history. Ambient, no AI yet.' },
+      { label:'1.2', title:'Immersive — Pre-seeded',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Based on your bedroom refresh and style profile, here's a bathroom concept in natural wood and warm neutrals. Matched to your existing aesthetic and budget.</div><div class="img-ph img-ph-34">Generated: Bathroom in your space</div><div class="cb ai">Want to explore this direction, or try something different?</div><div class="pc"><span class="ch">Love this direction</span><span class="ch">Try cooler-toned</span><span class="ch">Different layout</span></div></div>${inputBar()}</div>`,
+        note:'Immersive pre-seeded with context. No blank state.' },
+      { label:'1.3', title:'Immersive — Products',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">Love this direction</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Great. Here are the key pieces in this room.</div>${productCard('Vanity','Oak Floating Vanity','$1,249','★★★★★ 4.8','Matches your bedroom dresser finish')}${productCard('Mirror','Brass Arch Mirror','$349','★★★★☆ 4.5','Complements bedroom sconce hardware')}${productCard('Pendant','Warm Brass Pendant','$189','★★★★★ 4.7','Same finish as bedroom lighting')}<div class="cb ai" style="margin-top:4px">Want to swap anything, or check fit?</div></div></div>`,
+        note:'Product rationales connect to existing purchases.' },
+      { label:'1.4', title:'Immersive — Swap',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">Can I see a different mirror?</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Here are 3 mirrors that work with the vanity and your style. Tap to preview.</div><div class="mo"><div class="moi"><div class="img-ph img-ph-mir">Round Brass</div><div class="nm">Round Brass</div><div class="pr">$279</div></div><div class="moi pk"><div class="img-ph img-ph-mir">Oval Wood</div><div class="nm">Oval Wood</div><div class="pr">$329</div></div><div class="moi"><div class="img-ph img-ph-mir">Rect. Black</div><div class="nm">Rect. Black</div><div class="pr">$199</div></div></div></div>${inputBar()}</div>`,
+        note:'Oval Wood selected. Triggers room re-render.' },
+      { label:'1.5', title:'Immersive — Updated',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Here's the updated look. The oval wood mirror adds warmth and softens the vanity's straight lines.</div><div class="img-ph img-ph-34">Updated: Bathroom with Oval Wood Mirror</div><div class="cb ai">Your total for this room is <strong>$2,840</strong>.</div><div class="pc"><span class="ch pri">Add all to cart</span><span class="ch">Adjust budget</span><span class="ch">Save room</span></div></div>${inputBar()}</div>`,
+        note:'Room re-renders with new mirror. Total updates.' },
+      { label:'1.6', title:'Cart — Grouped', nav:'cart',
+        html: `<div class="cn">${bc()}<span class="tt">Cart</span></div><div class="cg"><div class="gl">✦ Bathroom Refresh</div>${cartItem('Oak Floating Vanity','$1,249')}${cartItem('Oval Wood Mirror','$329')}${cartItem('Warm Brass Pendant','$189')}${cartItem('Bath Hardware Set','$149')}${cartItem('Turkish Towel Set','$89')}</div><div class="di"><strong>📦 Consolidated delivery</strong><br>All 5 items arriving Thursday, April 2</div><div class="ct"><span>Total</span><span>$2,840</span></div><div class="cob">Checkout</div>`,
+        note:'Items grouped as project. Consolidated delivery.' },
+      { label:'1.7', title:'Post-Order Email',
+        html: `<div class="ebg"><div class="ehb"><div class="logo">Wayfair</div></div><div class="ebody"><h2>Your home, refreshed</h2><div class="sub">2 rooms designed, styled, and on the way.</div><div class="cr"><div class="cri"><div class="img-ph img-ph-email">Bedroom</div><div class="rl">Bedroom ✓</div></div><div class="cri"><div class="img-ph img-ph-email">Bathroom</div><div class="rl">Bathroom ✓</div></div></div><div class="wn"><h3>What's next?</h3><p>We designed more rooms in your style.</p><div class="nrc"><div class="img-ph img-ph-next">Living Room Concept</div><div class="cta"><span>Living Room</span><span class="arr">→</span></div></div><div class="nrc"><div class="img-ph img-ph-next">Home Office Concept</div><div class="cta"><span>Home Office</span><span class="arr">→</span></div></div></div></div></div>`,
+        note:'Celebrates progress, pre-renders next rooms.' },
+    ],
+    // Animation moments: chat type appends, screen type swaps
+    moments: [
+      { type:'screen', desc:'Homepage — personalized ambient module', hold:4000,
+        html: `<div class="homepage-section"><div class="hp-top-chips"><div class="hp-chip">♡ Lists</div><div class="hp-chip">Outdoor</div><div class="hp-chip">● Sale</div></div><div class="promo-banner"><div class="label">✦ Personalized for you</div><h3>Ready for your next room?</h3><p>Your bedroom refresh is complete.</p><div class="img-ph img-ph-34" style="margin-top:12px">Bathroom Concept</div></div><div class="section-header"><h3>my orders</h3><a>See All</a></div><div class="my-orders-card"><div class="order-img"><div class="ph"></div></div><div class="order-text"><h4>It's landed home!</h4><a>Manage your order</a></div></div></div>` },
+      { type:'chat-start', desc:'Immersive opens — pre-seeded with context', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cs">AI Designer</div>' },
+          { delay:300, html:'<div class="cb ai">Based on your bedroom refresh and style profile, here\'s a bathroom concept in natural wood and warm neutrals.</div>' },
+          { delay:800, html:'<div class="img-ph img-ph-34" style="margin:6px 0">Generated: Bathroom in your space</div>' },
+          { delay:1400, html:'<div class="cb ai">Want to explore this direction, or try something different?</div>' },
+          { delay:1900, html:'<div class="pc"><span class="ch">Love this direction</span><span class="ch">Try cooler-toned</span><span class="ch">Different layout</span></div>' },
+        ]},
+      { type:'chat-continue', desc:'Products revealed with rationale', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Love this direction</div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<div class="cb ai">Great. Here are the key pieces in this room.</div>' },
+          { delay:1100, html: productCard('Vanity','Oak Floating Vanity','$1,249','★★★★★ 4.8','Matches your bedroom dresser finish') },
+          { delay:1400, html: productCard('Mirror','Brass Arch Mirror','$349','★★★★☆ 4.5','Complements bedroom sconce hardware') },
+          { delay:1700, html: productCard('Pendant','Warm Brass Pendant','$189','★★★★★ 4.7','Same finish as bedroom lighting') },
+          { delay:2200, html:'<div class="cb ai">Want to swap anything, or check fit?</div>' },
+        ]},
+      { type:'chat-continue', desc:'Customer requests a mirror swap', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Can I see a different mirror?</div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<div class="cb ai">Here are 3 mirrors that work with the vanity. Tap to preview.</div>' },
+          { delay:1100, html:'<div class="mo"><div class="moi"><div class="img-ph img-ph-mir">Round Brass</div><div class="nm">Round Brass</div><div class="pr">$279</div></div><div class="moi pk"><div class="img-ph img-ph-mir">Oval Wood</div><div class="nm">Oval Wood</div><div class="pr">$329</div></div><div class="moi"><div class="img-ph img-ph-mir">Rect. Black</div><div class="nm">Rect. Black</div><div class="pr">$199</div></div></div>' },
+        ]},
+      { type:'chat-continue', desc:'Room re-renders with new selection', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cs" style="margin-top:10px">AI Designer</div>' },
+          { delay:200, html:'<div class="cb ai">Here\'s the updated look. The oval wood mirror adds warmth and softens the vanity\'s straight lines.</div>' },
+          { delay:700, html:'<div class="img-ph img-ph-34" style="margin:6px 0">Updated: Bathroom with Oval Wood Mirror</div>' },
+          { delay:1300, html:'<div class="cb ai">Your total for this room is <strong>$2,840</strong>.</div>' },
+          { delay:1700, html:'<div class="pc"><span class="ch pri">Add all to cart</span><span class="ch">Adjust budget</span><span class="ch">Save room</span></div>' },
+        ]},
+      { type:'screen', desc:'Cart groups items as a project', hold:4500,
+        html: `<div class="cn">${bc()}<span class="tt">Cart</span></div><div class="cg"><div class="gl">✦ Bathroom Refresh</div>${cartItem('Oak Floating Vanity','$1,249')}${cartItem('Oval Wood Mirror','$329')}${cartItem('Warm Brass Pendant','$189')}${cartItem('Bath Hardware Set','$149')}${cartItem('Turkish Towel Set','$89')}</div><div class="di"><strong>📦 Consolidated delivery</strong><br>All 5 items arriving Thursday, April 2</div><div class="ct"><span>Total</span><span>$2,840</span></div><div class="cob">Checkout</div>` },
+      { type:'screen', desc:'Post-order email with next-room concepts', hold:5000,
+        html: `<div class="ebg"><div class="ehb"><div class="logo">Wayfair</div></div><div class="ebody"><h2>Your home, refreshed</h2><div class="sub">2 rooms designed, styled, and on the way.</div><div class="cr"><div class="cri"><div class="img-ph img-ph-email">Bedroom</div><div class="rl">Bedroom ✓</div></div><div class="cri"><div class="img-ph img-ph-email">Bathroom</div><div class="rl">Bathroom ✓</div></div></div><div class="wn"><h3>What's next?</h3><p>We designed more rooms in your style.</p><div class="nrc"><div class="img-ph img-ph-next">Living Room</div><div class="cta"><span>Living Room</span><span class="arr">→</span></div></div><div class="nrc"><div class="img-ph img-ph-next">Home Office</div><div class="cta"><span>Home Office</span><span class="arr">→</span></div></div></div></div></div>` },
+    ]
+  },
+
+  '2': {
+    id: 'story2',
+    num: 'Story 2',
+    title: 'Visualization replaces imagination',
+    desc: 'A loyal app customer refreshes their patio. Wayfair uses climate, past purchases, and spatial context to generate coordinated concepts they can refine in real time.',
+    screens: [
+      { label:'2.1', title:'Homepage — Seasonal Prompt', nav:'home',
+        html: `<div class="homepage-section"><div class="hp-top-chips"><div class="hp-chip">♡ Lists</div><div class="hp-chip">Outdoor</div><div class="hp-chip">● Sale</div></div><div class="promo-banner"><div class="label">✦ Seasonal for you</div><h3>Spring Cyber Sale through Friday</h3><p>We designed a patio concept for you using sale items and your existing teak set.</p><div class="img-ph img-ph-34" style="margin-top:12px">Patio Concept<br>Austin Climate + Sale Items</div></div><div class="section-header"><h3>my orders</h3><a>See All</a></div><div class="my-orders-card"><div class="order-img"><div class="ph"></div></div><div class="order-text"><h4>It's landed home!</h4><a>Manage your order</a></div></div></div>`,
+        note:'Sale prompt with personalized concept using discounted items.' },
+      { label:'2.2', title:'Immersive — Two Concepts',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">I've designed around heat, shade, and durability. Here are two concepts.</div><div style="display:flex;gap:6px"><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Concept A<br>Lounge-forward</div><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Concept B<br>Entertaining</div></div><div class="cb ai" style="margin-top:6px">Which direction feels right?</div><div class="pc"><span class="ch">Concept A</span><span class="ch">Concept B</span><span class="ch">Mix both</span></div></div>${inputBar()}</div>`,
+        note:'Two generated patio concepts. Discovery model.' },
+      { label:'2.3', title:'Immersive — Products',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">Concept A</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Going lounge-forward. Here's what's in this concept.</div>${productCard('Sofa','Outdoor Sectional','$1,899','★★★★★ 4.6','Weather-resistant for Austin heat')}${productCard('Shade','Market Umbrella','$320','★★★★☆ 4.3','UV-blocking, tilt mechanism')}${productCard('Rug','Outdoor Area Rug','$249','★★★★★ 4.7','Complements teak dining set')}<div class="cb ai" style="margin-top:4px">Want to refine? Adjust for budget, shade coverage, or swap pieces.</div></div></div>`,
+        note:'Products with context-aware rationale.' },
+      { label:'2.4', title:'Immersive — Constraint Adjust',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">More shade coverage and lower total cost</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Swapped umbrella for sail shade canopy (saves $180, covers 40% more). New total: $3,200, down from $3,650.</div><div class="img-ph img-ph-34">Updated: Patio with sail shade canopy</div><div class="pc"><span class="ch">Show me what changed</span><span class="ch">Looks great</span><span class="ch">Lower cost more</span></div></div></div>`,
+        note:'AI rebalances based on constraint changes.' },
+      { label:'2.5', title:'Choice Overlay — Changes',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Here's what changed:</div><table class="choice-tbl"><tr><th>Item</th><th>Before</th><th>After</th></tr><tr><td>Shade</td><td>Umbrella, $320</td><td class="rec">Sail Canopy, $140</td></tr><tr><td>Planters</td><td>Ceramic, $210</td><td class="rec">Resin, $80</td></tr><tr><td>Coverage</td><td>~60 sq ft</td><td class="rec">~100 sq ft</td></tr><tr><td>Total</td><td>$3,650</td><td class="rec">$3,200</td></tr></table><div class="pc"><span class="ch pri">Keep these changes</span><span class="ch">Revert</span></div></div></div>`,
+        note:'Structured comparison overlay (Claude-style).' },
+      { label:'2.6', title:'Cart — Consolidated', nav:'cart',
+        html: `<div class="cn">${bc()}<span class="tt">Cart</span></div><div class="cg"><div class="gl">✦ Patio Refresh</div>${cartItem('Outdoor Sectional','$1,899')}${cartItem('Sail Shade Canopy','$140')}${cartItem('Side Table','$189')}${cartItem('Outdoor Area Rug','$249')}${cartItem('Resin Planter Set','$80')}</div><div class="di"><strong>📦 All 5 items arriving Thursday</strong><br>Assembly available for canopy — add for $49</div><div class="ct"><span>Total</span><span>$3,200</span></div><div class="cob">Checkout</div>`,
+        note:'Consolidated delivery with assembly option.' },
+      { label:'2.7', title:'Next Visit — Re-engagement', nav:'home',
+        html: `<div class="homepage-section"><div class="hp-top-chips"><div class="hp-chip">♡ Lists</div><div class="hp-chip">Outdoor</div><div class="hp-chip">● Sale</div></div><div class="promo-banner"><div class="label">✦ Based on your patio refresh</div><h3>Two more patio ideas</h3><p>We came up with two more concepts based on what you liked last time.</p><div style="display:flex;gap:8px;margin-top:10px"><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Idea A</div><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Idea B</div></div></div></div>`,
+        note:'Context persists across sessions. Ambient re-engagement.' },
+    ],
+    moments: [
+      { type:'screen', desc:'Sale homepage with personalized concept', hold:4000,
+        html: `<div class="homepage-section"><div class="hp-top-chips"><div class="hp-chip">♡ Lists</div><div class="hp-chip">Outdoor</div><div class="hp-chip">● Sale</div></div><div class="promo-banner"><div class="label">✦ Seasonal for you</div><h3>Spring Cyber Sale through Friday</h3><p>We designed a patio concept for you using sale items and your existing teak set.</p><div class="img-ph img-ph-34" style="margin-top:12px">Patio Concept<br>Austin Climate + Sale Items</div></div><div class="section-header"><h3>my orders</h3><a>See All</a></div><div class="my-orders-card"><div class="order-img"><div class="ph"></div></div><div class="order-text"><h4>It's landed home!</h4><a>Manage your order</a></div></div></div>` },
+      { type:'chat-start', desc:'Two concepts generated from context', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cs">AI Designer</div>' },
+          { delay:300, html:'<div class="cb ai">I\'ve designed around heat, shade, and durability. Two concepts:</div>' },
+          { delay:700, html:'<div style="display:flex;gap:6px"><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Concept A<br>Lounge</div><div class="img-ph" style="flex:1;aspect-ratio:1;border-radius:8px;font-size:9px">Concept B<br>Entertaining</div></div>' },
+          { delay:1200, html:'<div class="pc"><span class="ch">Concept A</span><span class="ch">Concept B</span><span class="ch">Mix both</span></div>' },
+        ]},
+      { type:'chat-continue', desc:'Products in selected concept', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Concept A</div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<div class="cb ai">Going lounge-forward. Here\'s what\'s in this concept.</div>' },
+          { delay:1100, html: productCard('Sofa','Outdoor Sectional','$1,899','★★★★★','Weather-resistant') },
+          { delay:1400, html: productCard('Shade','Market Umbrella','$320','★★★★☆','UV-blocking') },
+          { delay:1700, html: productCard('Rug','Outdoor Area Rug','$249','★★★★★','Complements teak set') },
+        ]},
+      { type:'chat-continue', desc:'Constraint adjustment — shade + cost', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">More shade coverage and lower total cost</div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<div class="cb ai">Swapped umbrella for sail shade (saves $180, +40% coverage). New total: $3,200.</div>' },
+          { delay:1200, html:'<div class="img-ph img-ph-34" style="margin:6px 0">Updated patio with sail shade</div>' },
+        ]},
+      { type:'chat-continue', desc:'Before/after comparison', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cb ai" style="margin-top:8px">Here\'s what changed:</div>' },
+          { delay:400, html:'<table class="choice-tbl"><tr><th>Item</th><th>Before</th><th>After</th></tr><tr><td>Shade</td><td>$320</td><td class="rec">$140</td></tr><tr><td>Planters</td><td>$210</td><td class="rec">$80</td></tr><tr><td>Total</td><td>$3,650</td><td class="rec">$3,200</td></tr></table>' },
+          { delay:1000, html:'<div class="pc"><span class="ch pri">Keep changes</span><span class="ch">Revert</span></div>' },
+        ]},
+      { type:'screen', desc:'Cart with consolidated delivery', hold:4500,
+        html: `<div class="cn">${bc()}<span class="tt">Cart</span></div><div class="cg"><div class="gl">✦ Patio Refresh</div>${cartItem('Outdoor Sectional','$1,899')}${cartItem('Sail Shade Canopy','$140')}${cartItem('Outdoor Area Rug','$249')}</div><div class="ct"><span>Total</span><span>$3,200</span></div><div class="cob">Checkout</div>` },
+    ]
+  },
+
+  '3': {
+    id: 'story3',
+    num: 'Story 3',
+    title: 'Urgent needs are solved in minutes',
+    desc: 'A Rewards customer\'s washing machine breaks. They enter from ChatGPT with urgency. Through a photo and two questions, the AI deduces top options, and ambient PDP intelligence reflects their specific concerns.',
+    screens: [
+      { label:'3.1', title:'Immersive — Photo Request',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">I understand you need a washing machine replaced quickly. Can you take a photo of your current setup? This helps me check the space, hookups, and whether you'd want something that matches your dryer.</div><div class="upload-area"><div class="icon">📷</div><div class="txt">Upload a photo of your laundry area</div></div></div>${inputBar()}</div>`,
+        note:'Arrives from ChatGPT. AI asks for photo to deduce setup.' },
+      { label:'3.2', title:'Immersive — Analysis + Questions',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user" style="padding:6px"><div class="img-ph" style="width:100%;aspect-ratio:4/3;border-radius:8px;font-size:9px">User's laundry area photo</div></div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Got it. I can see a closet-style nook about 27" wide, electric hookup, and a white front-load dryer next to it.</div><div class="cb ai">Since washers need at least 1" clearance on each side and 4" behind for hoses and ventilation, I'll recommend washers no wider than 25".</div><div class="cb ai" style="padding:8px 12px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Does matching your dryer matter?</div><div class="pc" style="margin-top:0"><span class="ch">White front-load to match</span><span class="ch">Don't care</span></div><div style="font-size:11px;font-weight:600;margin:8px 0 6px">What matters most?</div><div class="pc" style="margin-top:0"><span class="ch">Fastest delivery</span><span class="ch">Best value</span><span class="ch">Best reviewed</span></div></div></div></div>`,
+        note:'AI deduces space from photo, educates on clearance needs.' },
+      { label:'3.3', title:'Immersive — 3 Options',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Here are 3 white front-load washers that fit your 27" space, with next-day delivery.</div><table class="choice-tbl"><tr><th></th><th>Like-for-like</th><th>Best value</th><th>Top rated</th></tr><tr><td>Model</td><td>Maytag 4.5</td><td>Amana 4.4</td><td>LG 5.0</td></tr><tr><td>Price</td><td>$699</td><td>$549</td><td>$849</td></tr><tr><td>Fits 27"</td><td>Yes</td><td>Yes</td><td>Yes</td></tr><tr><td>Delivery</td><td>Tomorrow</td><td>Tomorrow</td><td>Tomorrow</td></tr><tr><td>Rating</td><td>★★★★½</td><td>★★★★</td><td>★★★★★</td></tr></table><div class="cb ai" style="margin-top:4px">All three match your dryer and fit the space.</div><div class="pc"><span class="ch">Break down differences</span><span class="ch">I need it tomorrow</span><span class="ch">View the Maytag</span></div></div></div>`,
+        note:'Structured comparison. Evaluation model.' },
+      { label:'3.4', title:'PDP — AI-Informed Highlights',
+        html: `<div style="padding:8px 16px">${bc()}</div><div class="img-ph img-ph-34" style="border-radius:0;margin:0">Maytag 4.5 cu ft Front-Load Washer</div><div class="pdp-section"><div class="pdp-title">Maytag 4.5 cu ft Front-Load Washer</div><div class="pdp-price">$699</div><div class="pdp-specs">White · Front-Load · 27"W × 31"D × 39"H<br>Ships tomorrow · Free delivery</div><div class="ai-highlight"><div class="hl-label">✦ Product Highlights — based on your needs</div><div class="hl-item">Fits standard 27" laundry closets</div><div class="hl-item">Front-load design matches your existing dryer</div><div class="hl-item">Next-day delivery available to your area</div></div><div class="review-summary"><div class="rs-label">Customers Say — tuned to your concerns</div><div class="rs-item"><strong>Fit:</strong> Customers confirm it fits 27" nooks</div><div class="rs-item"><strong>Reliability:</strong> Praised for lasting 5+ years</div><div class="rs-item"><strong>Noise:</strong> Some note louder spin cycle</div></div></div>`,
+        note:'PDP ambient intelligence reflects their constraints.' },
+      { label:'3.5', title:'Immersive — Confirm',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">What did you think of the Maytag? Ready to go with it?</div><div class="cb user">Go with the Maytag</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Great choice. Here's your order summary.</div><div style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:12px;margin:4px 0"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Maytag 4.5 cu ft — White</div><div style="font-size:11px;line-height:1.6">$699<br>Delivery: Tomorrow by 2pm<br>Install included, haul-away included<br><span style="color:#7B2D8E;font-weight:600">Rewards applied: –$42</span><br><strong>Total: $657</strong></div></div><div class="pc"><span class="ch pri">Confirm order</span></div></div></div>`,
+        note:'One-tap confirm. No cart step for urgent purchase.' },
+      { label:'3.6', title:'Order Confirmation',
+        html: `<div style="padding:60px 24px;text-align:center"><div style="font-size:40px;margin-bottom:12px">✓</div><div style="font-size:18px;font-weight:700;margin-bottom:4px">Order Confirmed</div><div style="font-size:12px;color:#888;margin-bottom:24px">Order #WF-839201</div><div style="background:#f8f8f8;border-radius:10px;padding:14px;text-align:left;font-size:11px;line-height:1.7"><strong>Maytag 4.5 cu ft Front-Load Washer</strong><br>Delivery: Tomorrow by 2pm<br>Install: Included<br>Haul-away: Old unit removed<br>Rewards applied: –$42<br><strong>Total paid: $657</strong></div></div>`,
+        note:'Clean confirmation. Tomorrow delivery, install, haul-away.' },
+    ],
+    moments: [
+      { type:'chat-start', desc:'AI asks for photo of laundry setup', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cs">AI Designer</div>' },
+          { delay:300, html:'<div class="cb ai">I understand you need a washing machine replaced quickly. Can you take a photo of your current setup?</div>' },
+          { delay:800, html:'<div class="upload-area"><div class="icon">📷</div><div class="txt">Upload a photo</div></div>' },
+        ]},
+      { type:'chat-continue', desc:'Photo analysis with clearance education', hold:1800,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px;padding:6px"><div class="img-ph" style="width:100%;aspect-ratio:4/3;border-radius:8px;font-size:9px">Laundry photo</div></div>' },
+          { delay:600, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:700, html:'<div class="cb ai">Closet nook, ~27" wide, electric hookup, white front-load dryer.</div>' },
+          { delay:1100, html:'<div class="cb ai">Washers need 1" clearance on sides, 4" behind for hoses—I\'ll recommend 25" max width.</div>' },
+          { delay:1500, html:'<div class="cb ai" style="padding:8px 12px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Match your dryer?</div><div class="pc" style="margin-top:0"><span class="ch">White front-load</span><span class="ch">Don\'t care</span></div><div style="font-size:11px;font-weight:600;margin:8px 0 6px">What matters most?</div><div class="pc" style="margin-top:0"><span class="ch">Fastest delivery</span><span class="ch">Best value</span></div></div>' },
+        ]},
+      { type:'chat-continue', desc:'Three options compared', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cs" style="margin-top:10px">AI Designer</div>' },
+          { delay:200, html:'<div class="cb ai">3 white front-load washers, next-day delivery:</div>' },
+          { delay:600, html:'<table class="choice-tbl"><tr><th></th><th>Match</th><th>Value</th><th>Top</th></tr><tr><td>Price</td><td>$699</td><td>$549</td><td>$849</td></tr><tr><td>Rating</td><td>★★★★½</td><td>★★★★</td><td>★★★★★</td></tr></table>' },
+          { delay:1100, html:'<div class="pc"><span class="ch">View the Maytag</span><span class="ch">Break down differences</span></div>' },
+        ]},
+      { type:'screen', desc:'PDP with AI-informed highlights', hold:5000,
+        html: `<div style="padding:8px 16px">${bc()}</div><div class="img-ph img-ph-34" style="border-radius:0;margin:0">Maytag 4.5 cu ft</div><div class="pdp-section"><div class="pdp-title">Maytag 4.5 cu ft</div><div class="pdp-price">$699</div><div class="ai-highlight"><div class="hl-label">✦ Based on your needs</div><div class="hl-item">Fits 27" laundry closets</div><div class="hl-item">Matches your existing dryer</div><div class="hl-item">Next-day delivery</div></div></div>` },
+      { type:'chat-start', desc:'One-tap order confirmation', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cb user">Go with the Maytag</div>' },
+          { delay:500, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:600, html:'<div class="cb ai">Great choice.</div>' },
+          { delay:900, html:'<div style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:12px;margin:4px 0"><div style="font-size:12px;font-weight:700;margin-bottom:4px">Maytag 4.5 cu ft — White</div><div style="font-size:11px;line-height:1.6">$699 · Tomorrow by 2pm<br>Install + haul-away included<br><span style="color:#7B2D8E;font-weight:600">Rewards: –$42</span> · <strong>Total: $657</strong></div></div>' },
+          { delay:1400, html:'<div class="pc"><span class="ch pri">Confirm order</span></div>' },
+        ]},
+      { type:'screen', desc:'Order confirmed', hold:4000,
+        html: `<div style="padding:60px 24px;text-align:center"><div style="font-size:40px;margin-bottom:12px">✓</div><div style="font-size:18px;font-weight:700;margin-bottom:4px">Order Confirmed</div><div style="font-size:12px;color:#888;margin-bottom:16px">Tomorrow by 2pm · Install included</div><div style="font-size:28px;font-weight:700">$657</div></div>` },
+    ]
+  },
+
+  '5': {
+    id: 'story5',
+    num: 'Story 5',
+    title: 'Complex purchases are coordinated end-to-end',
+    desc: 'A procurement manager furnishes 5 restaurants. They enter from a contextual prompt on the B2B browse page, upload inspiration, and the AI coordinates assortments, layouts, and phased delivery across locations.',
+    screens: [
+      { label:'5.1', title:'B2B Browse — Entry Point',
+        html: `<div style="padding:10px 14px">${bc()}<div style="font-size:20px;font-weight:700;margin:8px 0 2px">Commercial Dining</div><div style="font-size:12px;color:#888;margin-bottom:12px">4,291 Items</div><div class="hp-top-chips"><div class="hp-chip">Sort</div><div class="hp-chip">Filter</div><div class="hp-chip">Bulk Pricing</div></div></div><div class="ctx-entry"><h4>Furnishing a commercial space?</h4><p>Get AI help with bulk ordering, layout planning, and coordinated assortments.</p><div class="pc"><span class="ch">Furnish multiple locations</span><span class="ch">Upload inspiration</span><span class="ch">Get bulk pricing</span></div></div><div style="padding:12px 14px"><div class="product-row"><div class="product-thumb"><div class="img-ph img-ph-sq" style="font-size:8px">Commercial Chair</div><div class="nm">Metal Frame Chair</div><div class="pr">$185</div></div><div class="product-thumb"><div class="img-ph img-ph-sq" style="font-size:8px">Banquette</div><div class="nm">Upholstered Banquette</div><div class="pr">$340</div></div></div></div>`,
+        note:'Contextual entry point on B2B browse page.' },
+      { label:'5.2', title:'Immersive — Intake',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Tell me about the project.</div><div class="intake-form"><div class="intake-row"><span class="lbl">Space type</span><span class="val">Restaurant</span></div><div class="intake-row"><span class="lbl">Locations</span><span class="val">5</span></div><div class="intake-row"><span class="lbl">Sq footage (flagship)</span><span class="val">2,400 sq ft</span></div><div class="intake-row"><span class="lbl">Seating capacity</span><span class="val">40–50 per location</span></div><div class="intake-row"><span class="lbl">Budget</span><span class="val">$50–100K</span></div><div class="intake-row"><span class="lbl">Timeline</span><span class="val">1–3 months</span></div><div class="intake-row"><span class="lbl">Requirements</span><span class="val">Commercial grade, Durable, Easy clean</span></div></div><div class="cb ai" style="margin-top:6px">Upload inspiration images to match the aesthetic.</div><div class="upload-area"><div class="icon">📷</div><div class="txt">Upload inspiration images</div></div></div></div>`,
+        note:'B2B intake with commercial-specific details.' },
+      { label:'5.3', title:'Immersive — Assortment',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">5 restaurants, commercial grade, $50–100K. Here's a recommended assortment by category.</div>${productCard('Seating A','Upholstered Banquette','$340/unit','','Commercial, 5yr warranty')}${productCard('Seating B','Metal-Frame Chair','$185/unit','','Commercial, 7yr warranty')}${productCard('Tables','Butcher Block Table','$420','','Matches inspiration aesthetic')}${productCard('Lighting','Pendant Cluster','$289','','Warm tone, commercial rated')}<div class="cb ai" style="margin-top:4px">Compare options within a category, or generate a layout?</div></div></div>`,
+        note:'Category-organized assortment recommendations.' },
+      { label:'5.4', title:'Choice Overlay — Seating',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">Compare seating options</div><div class="cs" style="margin-top:6px">AI Designer</div><table class="choice-tbl"><tr><th></th><th>Banquette</th><th>Metal-frame</th></tr><tr><td>$/unit</td><td>$340</td><td>$185</td></tr><tr><td>×5 loc (80)</td><td>$27,200</td><td>$14,800</td></tr><tr><td>Durability</td><td>5yr warranty</td><td>7yr warranty</td></tr><tr><td>Clean</td><td>Stain-treated</td><td>Wipe-down</td></tr><tr><td>Lead time</td><td>6 weeks</td><td>2 weeks</td></tr><tr><td>Aesthetic</td><td class="rec">High match</td><td>Moderate</td></tr></table><div class="cb ai" style="margin-top:6px">Mix approach — banquettes for flagship, metal-frame for the rest?</div><div class="pc"><span class="ch">Mix approach</span><span class="ch">All banquettes</span><span class="ch">All metal-frame</span></div></div></div>`,
+        note:'Multi-location cost comparison with trade-off framing.' },
+      { label:'5.5', title:'Immersive — Location Breakdown',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cb user">Mix approach</div><div class="cs" style="margin-top:6px">AI Designer</div><div class="cb ai">Here's the breakdown across 5 locations.</div><div style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:10px 12px;margin:4px 0;font-size:10px;line-height:1.7"><div style="font-weight:700;margin-bottom:4px">Location 1 — Downtown Flagship</div>Banquettes, butcher block, pendants<br>Est. $18,400 · Lead time: 6 weeks<br><br><div style="font-weight:700;margin-bottom:4px">Locations 2–5</div>Metal-frame chairs, laminate tables, sconces<br>Est. $11,200 × 4 = $44,800 · Lead time: 2 weeks<br><br><div style="border-top:1px solid #eee;padding-top:6px;font-weight:700">Project total: $63,200<br><span style="color:#7B2D8E">Bulk discount: –8% → $58,144</span></div></div><div class="pc"><span class="ch">Show flagship layout</span><span class="ch">Adjust budget</span><span class="ch pri">Proceed to order</span></div></div></div>`,
+        note:'Cross-location breakdown with bulk discount.' },
+      { label:'5.6', title:'Room Generation — Flagship',
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Here's your flagship with the banquette configuration.</div><div class="img-ph img-ph-34">Generated: Restaurant interior — Downtown Flagship</div><div style="background:#f8f5fc;border:1px solid #ece5f3;border-radius:8px;padding:8px 10px;margin:4px 0;font-size:10px;line-height:1.6"><span style="color:#7B2D8E;font-weight:700">✓ Spatial Analysis — Commercial Requirements</span><br>Square footage: 2,400 sq ft<br>Seating capacity: 42 (meets 40–50 target)<br>ADA aisle clearance: Met (36" min)<br>Fire code egress: Maintained<br>Commercial grade furnishings: Confirmed</div><div class="cb ai">Adjust the layout or move to ordering?</div><div class="pc"><span class="ch">Adjust layout</span><span class="ch pri">Proceed to order</span></div></div></div>`,
+        note:'Generated layout with commercial compliance details.' },
+      { label:'5.7', title:'B2B Order Summary',
+        html: `<div class="cn">${bc()}<span class="tt">Project Order</span></div><div style="padding:0 18px;font-size:10px;line-height:1.7"><div style="font-weight:700;font-size:12px;margin-bottom:8px">5 Locations — Restaurant Furnishing</div><div style="background:#f8f8f8;border-radius:8px;padding:10px;margin-bottom:8px"><strong>Loc 1: Downtown (Flagship)</strong><br>Banquettes + Butcher block + Pendants<br>$18,400 · Delivery: 6 weeks · Install: Scheduled</div><div style="background:#f8f8f8;border-radius:8px;padding:10px;margin-bottom:8px"><strong>Loc 2–5: Standard</strong><br>Metal-frame + Laminate + Sconces<br>$44,800 · Delivery: 2 weeks · Install: Scheduled</div><div style="border-top:1px solid #eee;padding-top:8px;margin-top:4px"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>$63,200</span></div><div style="display:flex;justify-content:space-between;color:#7B2D8E"><span>Bulk discount (8%)</span><span>–$5,056</span></div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:6px"><span>Total</span><span>$58,144</span></div></div></div><div class="cob" style="margin-top:12px">Confirm Project Order</div>`,
+        note:'Project plan view. Phased delivery, bulk discount, install coordination.' },
+    ],
+    moments: [
+      { type:'screen', desc:'Contextual entry on B2B browse', hold:4000,
+        html: `<div style="padding:10px 14px">${bc()}<div style="font-size:20px;font-weight:700;margin:8px 0 2px">Commercial Dining</div><div style="font-size:12px;color:#888;margin-bottom:12px">4,291 Items</div></div><div class="ctx-entry"><h4>Furnishing a commercial space?</h4><p>Get AI help with bulk ordering and layout planning.</p><div class="pc"><span class="ch">Furnish multiple locations</span><span class="ch">Upload inspiration</span></div></div>` },
+      { type:'chat-start', desc:'B2B project intake with commercial specs', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cs">AI Designer</div>' },
+          { delay:200, html:'<div class="cb ai">Tell me about the project.</div>' },
+          { delay:600, html:'<div class="intake-form"><div class="intake-row"><span class="lbl">Space</span><span class="val">Restaurant</span></div><div class="intake-row"><span class="lbl">Locations</span><span class="val">5</span></div><div class="intake-row"><span class="lbl">Sq ft</span><span class="val">2,400</span></div><div class="intake-row"><span class="lbl">Seating</span><span class="val">40–50/loc</span></div><div class="intake-row"><span class="lbl">Budget</span><span class="val">$50–100K</span></div><div class="intake-row"><span class="lbl">Requirements</span><span class="val">Commercial grade</span></div></div>' },
+          { delay:1100, html:'<div class="upload-area"><div class="icon">📷</div><div class="txt">Upload inspiration</div></div>' },
+        ]},
+      { type:'chat-continue', desc:'Category assortment recommendations', hold:1200,
+        items: [
+          { delay:0, html:'<div class="cs" style="margin-top:10px">AI Designer</div>' },
+          { delay:200, html:'<div class="cb ai">Here\'s a recommended assortment:</div>' },
+          { delay:600, html: productCard('','Upholstered Banquette','$340/unit','','Commercial, 5yr') },
+          { delay:900, html: productCard('','Metal-Frame Chair','$185/unit','','Commercial, 7yr') },
+          { delay:1200, html: productCard('','Butcher Block Table','$420','','Matches inspiration') },
+        ]},
+      { type:'chat-continue', desc:'Seating comparison with trade-offs', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Compare seating</div>' },
+          { delay:500, html:'<table class="choice-tbl"><tr><th></th><th>Banquette</th><th>Metal</th></tr><tr><td>×80 seats</td><td>$27,200</td><td>$14,800</td></tr><tr><td>Lead time</td><td>6 wks</td><td>2 wks</td></tr><tr><td>Match</td><td class="rec">High</td><td>Moderate</td></tr></table>' },
+          { delay:1000, html:'<div class="cb ai">Mix? Banquettes for flagship, metal for rest?</div>' },
+          { delay:1400, html:'<div class="pc"><span class="ch">Mix approach</span><span class="ch">All banquettes</span></div>' },
+        ]},
+      { type:'chat-continue', desc:'Multi-location cost breakdown', hold:1500,
+        items: [
+          { delay:0, html:'<div class="cb user" style="margin-top:10px">Mix approach</div>' },
+          { delay:500, html:'<div class="cs" style="margin-top:6px">AI Designer</div>' },
+          { delay:600, html:'<div style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:10px 12px;margin:4px 0;font-size:10px;line-height:1.7"><div style="font-weight:700">Loc 1 — Flagship</div>$18,400 · 6 weeks<br><br><div style="font-weight:700">Loc 2–5</div>$44,800 · 2 weeks<br><br><div style="border-top:1px solid #eee;padding-top:6px;font-weight:700">Total: $63,200 → <span style="color:#7B2D8E">$58,144 (–8%)</span></div></div>' },
+          { delay:1200, html:'<div class="pc"><span class="ch">Show flagship layout</span><span class="ch pri">Proceed to order</span></div>' },
+        ]},
+      { type:'screen', desc:'Flagship layout with commercial compliance', hold:5000,
+        html: `<div class="immersive-bg">${imNav()}<div class="chat-flow"><div class="cs">AI Designer</div><div class="cb ai">Here's your flagship layout.</div><div class="img-ph img-ph-34">Generated: Restaurant Interior</div><div style="background:#f8f5fc;border:1px solid #ece5f3;border-radius:8px;padding:8px 10px;margin:4px 0;font-size:10px;line-height:1.6"><span style="color:#7B2D8E;font-weight:700">✓ Commercial Requirements</span><br>2,400 sq ft · Seats: 42<br>ADA: Met · Egress: OK<br>Commercial grade: Confirmed</div><div class="pc"><span class="ch pri">Proceed to order</span></div></div></div>` },
+      { type:'screen', desc:'B2B project order summary', hold:5000,
+        html: `<div class="cn">${bc()}<span class="tt">Project Order</span></div><div style="padding:0 18px;font-size:10px;line-height:1.7"><div style="font-weight:700;font-size:12px;margin-bottom:8px">5 Locations</div><div style="background:#f8f8f8;border-radius:8px;padding:10px;margin-bottom:8px"><strong>Flagship</strong><br>$18,400 · 6 weeks</div><div style="background:#f8f8f8;border-radius:8px;padding:10px;margin-bottom:8px"><strong>Loc 2–5</strong><br>$44,800 · 2 weeks</div><div style="border-top:1px solid #eee;padding-top:8px"><div style="display:flex;justify-content:space-between;color:#7B2D8E"><span>Bulk –8%</span><span>–$5,056</span></div><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:6px"><span>Total</span><span>$58,144</span></div></div></div><div class="cob" style="margin-top:12px">Confirm Project Order</div>` },
+    ]
+  }
+};
+
+// =====================================================
+// RENDER STATIC SCREENS + ANIMATED PHONE FOR EACH STORY
+// =====================================================
+const app = document.getElementById('app');
+const storyOrder = ['1','2','3','5'];
+
+storyOrder.forEach(key => {
+  const s = STORIES[key];
+  let html = `<section class="story-section" id="${s.id}">
+    <div class="story-header"><h1>${s.num}</h1><h2>${s.title}</h2><p>${s.desc}</p></div>
+    <div class="scroll-track">`;
+
+  // Animated phone
+  const expandSvg = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+  html += `<div class="anim-group" data-anim-story="${key}">
+    <div class="screen-label">Walkthrough</div>
+    <div class="anim-title-row"><div class="screen-title">Animated Flow</div><button class="expand-btn" data-expand="${key}" title="View fullscreen">${expandSvg}</button></div>
+    <div class="iphone anim-phone" data-story="${key}">${STATUS_BAR}<div class="screen-content" data-anim-sc></div>${bottomNav()}</div>
+    <div class="screen-meta"><div class="meta-label" data-meta-label></div><div class="meta-desc" data-meta-desc></div></div>
+    <div class="progress-bar" data-progress></div>
+    <div class="anim-controls"><button class="ctrl-btn" data-prev>‹</button><button class="ctrl-btn pp" data-pp>❚❚</button><button class="ctrl-btn" data-next>›</button></div>
+  </div>`;
+
+  // Divider
+  html += DIVIDER;
+
+  // Static screens
+  s.screens.forEach((scr, i) => {
+    if (i > 0) html += CONN;
+    html += `<div class="screen-group"><div class="screen-label">${scr.label}</div><div class="screen-title">${scr.title}</div>`;
+    html += phone(scr.html, scr.nav||'');
+    html += `<div class="sn">${scr.note}</div></div>`;
+  });
+
+  html += '<div style="width:40px;flex-shrink:0"></div></div></section>';
+  app.insertAdjacentHTML('beforeend', html);
+});
+
+// Inject back buttons
+document.querySelectorAll('.bc').forEach(bc => {
+  if (!bc.innerHTML.trim()) bc.innerHTML = BACK_SVG;
+});
+
+// =====================================================
+// ANIMATION ENGINE — continuous chat scrolling
+// =====================================================
+document.querySelectorAll('.anim-phone').forEach(phoneEl => {
+  const group = phoneEl.closest('.anim-group');
+  const storyKey = phoneEl.getAttribute('data-story');
+  const moments = STORIES[storyKey].moments;
+  const sc = phoneEl.querySelector('[data-anim-sc]');
+  const metaLabel = group.querySelector('[data-meta-label]');
+  const metaDesc = group.querySelector('[data-meta-desc]');
+  const progressBar = group.querySelector('[data-progress]');
+  const ppBtn = group.querySelector('[data-pp]');
+  const prevBtn = group.querySelector('[data-prev]');
+  const nextBtn = group.querySelector('[data-next]');
+
+  let current = 0, playing = true, timer = null, itemTimers = [];
+  let chatContainer = null; // the running chat-flow div
+
+  // Build progress dots
+  moments.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i===0?' active':'');
+    dot.addEventListener('click', () => goTo(i));
+    progressBar.appendChild(dot);
+  });
+  const dots = progressBar.querySelectorAll('.progress-dot');
+
+  function clearTimers(){ itemTimers.forEach(t=>clearTimeout(t)); itemTimers=[]; clearTimeout(timer); }
+
+  function updateMeta(idx){
+    metaLabel.textContent = `${idx+1} of ${moments.length}`;
+    metaDesc.textContent = moments[idx].desc;
+    dots.forEach((d,i)=>{ d.classList.remove('active','past'); if(i===idx) d.classList.add('active'); else if(i<idx) d.classList.add('past'); });
+  }
+
+  function getMaxItemDelay(m){
+    if(!m.items) return 0;
+    return Math.max(...m.items.map(i=>i.delay));
+  }
+
+  function showMoment(idx){
+    clearTimers();
+    current = idx;
+    const m = moments[idx];
+    updateMeta(idx);
+
+    if(m.type === 'screen'){
+      // Full screen swap
+      chatContainer = null;
+      sc.innerHTML = m.html;
+      // Inject back buttons in the new content
+      sc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+    }
+    else if(m.type === 'chat-start'){
+      // Start a new chat conversation
+      sc.innerHTML = `<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+      sc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+      chatContainer = sc.querySelector('[data-chat-flow]');
+      appendChatItems(m);
+    }
+    else if(m.type === 'chat-continue'){
+      // Append to existing chat
+      if(!chatContainer){
+        // Fallback: start fresh if somehow no container
+        sc.innerHTML = `<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+        sc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+        chatContainer = sc.querySelector('[data-chat-flow]');
+      }
+      appendChatItems(m);
+    }
+  }
+
+  function appendChatItems(m){
+    if(!m.items || !chatContainer) return;
+    m.items.forEach(item => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'chat-msg';
+      wrapper.innerHTML = item.html;
+      // Tag user messages for right-alignment
+      if(item.html.includes('cb user')) wrapper.classList.add('user-msg');
+      chatContainer.appendChild(wrapper);
+
+      const t = setTimeout(()=>{
+        wrapper.classList.add('shown');
+        // Scroll to bottom
+        sc.scrollTo({top: sc.scrollHeight, behavior:'smooth'});
+      }, item.delay + 100);
+      itemTimers.push(t);
+    });
+  }
+
+  function scheduleNext(){
+    if(!playing) return;
+    const m = moments[current];
+    const itemTime = m.items ? getMaxItemDelay(m) + 600 : 0;
+    const holdTime = m.hold || 3000;
+    timer = setTimeout(()=>{
+      const next = current < moments.length - 1 ? current + 1 : 0;
+      if(next === 0) chatContainer = null; // reset on loop
+      showMoment(next);
+      scheduleNext();
+    }, itemTime + holdTime);
+  }
+
+  function goTo(idx){
+    clearTimers();
+    // If going backwards or to a screen, need to rebuild chat from scratch
+    if(idx <= current || moments[idx].type === 'screen' || idx === 0){
+      chatContainer = null;
+      // Replay all chat moments up to idx to rebuild state
+      let startFrom = 0;
+      for(let i = idx; i >= 0; i--){
+        if(moments[i].type === 'screen' || moments[i].type === 'chat-start'){
+          startFrom = i;
+          break;
+        }
+      }
+      // Instantly render moments from startFrom to idx-1, then animate idx
+      for(let i = startFrom; i < idx; i++){
+        showMomentInstant(i);
+      }
+      showMoment(idx);
+    } else {
+      showMoment(idx);
+    }
+    if(playing) scheduleNext();
+  }
+
+  function showMomentInstant(idx){
+    const m = moments[idx];
+    if(m.type === 'screen'){
+      chatContainer = null;
+      sc.innerHTML = m.html;
+      sc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+    }
+    else if(m.type === 'chat-start'){
+      sc.innerHTML = `<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+      sc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+      chatContainer = sc.querySelector('[data-chat-flow]');
+      if(m.items) m.items.forEach(item=>{
+        const w = document.createElement('div');
+        w.className = 'chat-msg shown';
+        if(item.html.includes('cb user')) w.classList.add('user-msg');
+        w.innerHTML = item.html;
+        chatContainer.appendChild(w);
+      });
+    }
+    else if(m.type === 'chat-continue'){
+      if(!chatContainer) return;
+      if(m.items) m.items.forEach(item=>{
+        const w = document.createElement('div');
+        w.className = 'chat-msg shown';
+        if(item.html.includes('cb user')) w.classList.add('user-msg');
+        w.innerHTML = item.html;
+        chatContainer.appendChild(w);
+      });
+    }
+  }
+
+  ppBtn.addEventListener('click',()=>{
+    playing=!playing;
+    ppBtn.textContent = playing?'❚❚':'▶';
+    if(playing) scheduleNext(); else clearTimers();
+  });
+  prevBtn.addEventListener('click',()=>goTo(current>0?current-1:moments.length-1));
+  nextBtn.addEventListener('click',()=>goTo(current<moments.length-1?current+1:0));
+
+  // Only auto-play when visible
+  const visObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting && playing){ showMoment(current); scheduleNext(); }
+      else { clearTimers(); }
+    });
+  },{threshold:0.3});
+  visObs.observe(phoneEl);
+
+  showMoment(0);
+});
+
+// =====================================================
+// STICKY NAV
+// =====================================================
+document.querySelectorAll('.story-nav button[data-target]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation();
+    const t = document.getElementById(btn.getAttribute('data-target'));
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+const sections = document.querySelectorAll('.story-section');
+const navBtns = document.querySelectorAll('.story-nav button[data-target]');
+const navObs = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      navBtns.forEach(b=>b.classList.remove('active'));
+      const btn = document.querySelector(`.story-nav button[data-target="${entry.target.id}"]`);
+      if(btn) btn.classList.add('active');
+    }
+  });
+},{rootMargin:'-40% 0px -60% 0px'});
+sections.forEach(s=>navObs.observe(s));
+
+// =====================================================
+// FULLSCREEN MODAL
+// =====================================================
+
+// Create modal element
+const modal = document.createElement('div');
+modal.className = 'anim-modal';
+modal.innerHTML = `
+  <div class="modal-header">
+    <div><div class="modal-title" data-modal-title></div><div class="modal-subtitle" data-modal-subtitle></div></div>
+    <button class="modal-close" data-modal-close>✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="iphone anim-phone" data-modal-phone>${STATUS_BAR}<div class="screen-content" data-modal-sc></div>${bottomNav()}</div>
+    <div class="modal-meta"><div class="modal-meta-label" data-modal-meta-label></div><div class="modal-meta-desc" data-modal-meta-desc></div></div>
+    <div class="modal-progress" data-modal-progress></div>
+    <div class="modal-controls"><button class="m-ctrl" data-modal-prev>‹</button><button class="m-ctrl m-pp" data-modal-pp>❚❚</button><button class="m-ctrl" data-modal-next>›</button></div>
+  </div>
+  <div class="esc-hint">← → navigate · Space play/pause · ESC close</div>`;
+document.body.appendChild(modal);
+
+// Inject back buttons in modal
+modal.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+
+let modalStory = null, modalCurrent = 0, modalPlaying = true, modalTimer = null, modalItemTimers = [];
+let modalChatContainer = null;
+const modalSc = modal.querySelector('[data-modal-sc]');
+const modalTitle = modal.querySelector('[data-modal-title]');
+const modalSubtitle = modal.querySelector('[data-modal-subtitle]');
+const modalMetaLabel = modal.querySelector('[data-modal-meta-label]');
+const modalMetaDesc = modal.querySelector('[data-modal-meta-desc]');
+const modalProgress = modal.querySelector('[data-modal-progress]');
+const modalPP = modal.querySelector('[data-modal-pp]');
+const modalPrev = modal.querySelector('[data-modal-prev]');
+const modalNext = modal.querySelector('[data-modal-next]');
+const modalCloseBtn = modal.querySelector('[data-modal-close]');
+
+function modalClearTimers(){ modalItemTimers.forEach(t=>clearTimeout(t)); modalItemTimers=[]; clearTimeout(modalTimer); }
+
+function modalUpdateMeta(idx){
+  const moments = STORIES[modalStory].moments;
+  modalMetaLabel.textContent = `${idx+1} of ${moments.length}`;
+  modalMetaDesc.textContent = moments[idx].desc;
+  const dots = modalProgress.querySelectorAll('.modal-dot');
+  dots.forEach((d,i)=>{ d.classList.remove('active','past'); if(i===idx) d.classList.add('active'); else if(i<idx) d.classList.add('past'); });
+}
+
+function modalGetMaxDelay(m){
+  if(!m.items) return 0;
+  return Math.max(...m.items.map(i=>i.delay));
+}
+
+function modalAppendItems(m){
+  if(!m.items||!modalChatContainer) return;
+  m.items.forEach(item=>{
+    const w = document.createElement('div');
+    w.className = 'chat-msg';
+    if(item.html.includes('cb user')) w.classList.add('user-msg');
+    w.innerHTML = item.html;
+    modalChatContainer.appendChild(w);
+    const t = setTimeout(()=>{
+      w.classList.add('shown');
+      modalSc.scrollTo({top:modalSc.scrollHeight,behavior:'smooth'});
+    }, item.delay+100);
+    modalItemTimers.push(t);
+  });
+}
+
+function modalShowMoment(idx){
+  modalClearTimers();
+  modalCurrent = idx;
+  const m = STORIES[modalStory].moments[idx];
+  modalUpdateMeta(idx);
+
+  if(m.type==='screen'){
+    modalChatContainer=null;
+    modalSc.innerHTML=m.html;
+    modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+  } else if(m.type==='chat-start'){
+    modalSc.innerHTML=`<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+    modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+    modalChatContainer=modalSc.querySelector('[data-chat-flow]');
+    modalAppendItems(m);
+  } else if(m.type==='chat-continue'){
+    if(!modalChatContainer){
+      modalSc.innerHTML=`<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+      modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+      modalChatContainer=modalSc.querySelector('[data-chat-flow]');
+    }
+    modalAppendItems(m);
+  }
+}
+
+function modalShowInstant(idx){
+  const m = STORIES[modalStory].moments[idx];
+  if(m.type==='screen'){
+    modalChatContainer=null;
+    modalSc.innerHTML=m.html;
+    modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+  } else if(m.type==='chat-start'){
+    modalSc.innerHTML=`<div class="immersive-bg">${imNav()}<div class="chat-flow" data-chat-flow></div></div>`;
+    modalSc.querySelectorAll('.bc').forEach(b=>{ if(!b.innerHTML.trim()) b.innerHTML=BACK_SVG; });
+    modalChatContainer=modalSc.querySelector('[data-chat-flow]');
+    if(m.items) m.items.forEach(item=>{
+      const w=document.createElement('div'); w.className='chat-msg shown';
+      if(item.html.includes('cb user')) w.classList.add('user-msg');
+      w.innerHTML=item.html; modalChatContainer.appendChild(w);
+    });
+  } else if(m.type==='chat-continue'){
+    if(!modalChatContainer) return;
+    if(m.items) m.items.forEach(item=>{
+      const w=document.createElement('div'); w.className='chat-msg shown';
+      if(item.html.includes('cb user')) w.classList.add('user-msg');
+      w.innerHTML=item.html; modalChatContainer.appendChild(w);
+    });
+  }
+}
+
+function modalScheduleNext(){
+  if(!modalPlaying) return;
+  const m = STORIES[modalStory].moments[modalCurrent];
+  const itemTime = m.items ? modalGetMaxDelay(m)+600 : 0;
+  const holdTime = m.hold||3000;
+  modalTimer = setTimeout(()=>{
+    const moments = STORIES[modalStory].moments;
+    const next = modalCurrent < moments.length-1 ? modalCurrent+1 : 0;
+    if(next===0) modalChatContainer=null;
+    modalShowMoment(next);
+    modalScheduleNext();
+  }, itemTime+holdTime);
+}
+
+function modalGoTo(idx){
+  modalClearTimers();
+  const moments = STORIES[modalStory].moments;
+  if(idx<=modalCurrent || moments[idx].type==='screen' || idx===0){
+    modalChatContainer=null;
+    let startFrom=0;
+    for(let i=idx;i>=0;i--){
+      if(moments[i].type==='screen'||moments[i].type==='chat-start'){ startFrom=i; break; }
+    }
+    for(let i=startFrom;i<idx;i++) modalShowInstant(i);
+    modalShowMoment(idx);
+  } else {
+    modalShowMoment(idx);
+  }
+  if(modalPlaying) modalScheduleNext();
+}
+
+function openModal(storyKey){
+  modalStory = storyKey;
+  modalCurrent = 0;
+  modalPlaying = true;
+  modalChatContainer = null;
+  modalPP.textContent = '❚❚';
+
+  const s = STORIES[storyKey];
+  modalTitle.textContent = s.title;
+  modalSubtitle.textContent = s.num;
+
+  // Build progress dots
+  modalProgress.innerHTML = '';
+  s.moments.forEach((_,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'modal-dot'+(i===0?' active':'');
+    dot.addEventListener('click',()=>modalGoTo(i));
+    modalProgress.appendChild(dot);
+  });
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  modalShowMoment(0);
+  modalScheduleNext();
+}
+
+function closeModal(){
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  modalClearTimers();
+  modalStory = null;
+}
+
+// Event listeners
+document.querySelectorAll('[data-expand]').forEach(btn=>{
+  btn.addEventListener('click',()=> openModal(btn.getAttribute('data-expand')));
+});
+
+modalCloseBtn.addEventListener('click', closeModal);
+
+modalPP.addEventListener('click',()=>{
+  modalPlaying=!modalPlaying;
+  modalPP.textContent=modalPlaying?'❚❚':'▶';
+  if(modalPlaying) modalScheduleNext(); else modalClearTimers();
+});
+modalPrev.addEventListener('click',()=>{
+  const len=STORIES[modalStory].moments.length;
+  modalGoTo(modalCurrent>0?modalCurrent-1:len-1);
+});
+modalNext.addEventListener('click',()=>{
+  const len=STORIES[modalStory].moments.length;
+  modalGoTo(modalCurrent<len-1?modalCurrent+1:0);
+});
+
+document.addEventListener('keydown',e=>{
+  if(!modal.classList.contains('open')) return;
+  if(e.key==='Escape') closeModal();
+  if(e.key==='ArrowRight'){
+    e.preventDefault();
+    const len=STORIES[modalStory].moments.length;
+    modalGoTo(modalCurrent<len-1?modalCurrent+1:0);
+  }
+  if(e.key==='ArrowLeft'){
+    e.preventDefault();
+    const len=STORIES[modalStory].moments.length;
+    modalGoTo(modalCurrent>0?modalCurrent-1:len-1);
+  }
+  if(e.key===' '){
+    e.preventDefault();
+    modalPlaying=!modalPlaying;
+    modalPP.textContent=modalPlaying?'❚❚':'▶';
+    if(modalPlaying) modalScheduleNext(); else modalClearTimers();
+  }
+});
+</script>
+</body>
+</html>
